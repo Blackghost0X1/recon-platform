@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recon Platform | Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        accentred: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkbg text-gray-100 min-h-screen font-mono">
+    
+    <!-- Navbar -->
+    <nav class="bg-cardbg border-b border-gray-800 px-6 py-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center space-x-3">
+            <span class="text-accentred text-2xl font-bold">⚡</span>
+            <h1 class="text-xl font-bold tracking-wider text-white">RECON & MONITORING <span class="text-accentred">PLATFORM</span></h1>
+        </div>
+        <div class="text-xs text-gray-400 bg-gray-900 px-3 py-1.5 rounded border border-gray-800">
+            Status: <span class="text-green-400 font-semibold">Online (Secured)</span>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Add Target Section -->
+        <div class="bg-cardbg p-6 rounded-lg border border-gray-800 shadow-md mb-8">
+            <h2 class="text-lg font-semibold mb-4 text-accentred">➕ Add New Target</h2>
+            <form id="addTargetForm" class="flex flex-col gap-4">
+                <div class="flex gap-4">
+                    <input type="text" id="domainInput" placeholder="e.g. target.com" required
+                        class="flex-1 bg-gray-900 border border-gray-700 rounded px-4 py-2.5 text-white focus:outline-none focus:border-accentred">
+                    <button type="submit" class="bg-accentred hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded transition duration-200">
+                        Launch Recon
+                    </button>
+                </div>
+                <!-- Force Rescan Checkbox Option -->
+                <div class="flex items-center space-x-2 text-xs text-gray-400">
+                    <input type="checkbox" id="forceRescanCheck" class="rounded bg-gray-900 border-gray-700 text-accentred focus:ring-0">
+                    <label for="forceRescanCheck">Force Rescan (Ignore cache and run all tools from scratch)</label>
+                </div>
+            </form>
+        </div>
+
+        <!-- Targets List Table -->
+        <div class="bg-cardbg rounded-lg border border-gray-800 shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-800">
+                <h2 class="text-lg font-semibold text-white">🎯 Active Targets</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-900 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-800">
+                            <th class="px-6 py-3">ID</th>
+                            <th class="px-6 py-3">Domain</th>
+                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Subdomains</th>
+                            <th class="px-6 py-3">Endpoints</th>
+                            <th class="px-6 py-3">JS Files</th>
+                            <th class="px-6 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-800 text-sm">
+                        {% for t in targets %}
+                        <tr class="hover:bg-gray-800/50 transition">
+                            <td class="px-6 py-4 text-gray-400">#{{ t.id }}</td>
+                            <td class="px-6 py-4 font-bold text-white">{{ t.domain }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 text-xs rounded-full font-semibold 
+                                    {% if t.status == 'finished' %} bg-green-900/50 text-green-400 border border-green-700
+                                    {% elif t.status == 'running' %} bg-yellow-900/50 text-yellow-400 border border-yellow-700
+                                    {% else %} bg-gray-800 text-gray-400 {% endif %}">
+                                    {{ t.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-300">{{ t.subdomains|length }}</td>
+                            <td class="px-6 py-4 text-gray-300">{{ t.endpoints|length }}</td>
+                            <td class="px-6 py-4 text-gray-300">{{ t.js_files|length }}</td>
+                            <td class="px-6 py-4 text-right space-x-2">
+                                <!-- زر عرض البيانات -->
+                                <a href="/targets/{{ t.id }}/subdomains" target="_blank" class="text-accentred hover:text-red-400 font-semibold text-xs border border-red-900/50 px-2.5 py-1.5 rounded bg-red-950/20">View</a>
+                                
+                                <!-- زر تصدير النتائج -->
+                                <a href="/targets/{{ t.id }}/export/subdomains" class="text-blue-400 hover:text-blue-300 font-semibold text-xs border border-blue-900/50 px-2.5 py-1.5 rounded bg-blue-950/20">Export TXT</a>
+                                
+                                <!-- زر حذف الهدف -->
+                                <button onclick="deleteTarget({{ t.id }})" class="text-gray-400 hover:text-red-500 font-semibold text-xs border border-gray-700 px-2.5 py-1.5 rounded bg-gray-900">Delete</button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">No targets added yet. Add one above to start reconnaissance.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript to handle adding targets, force rescan, and deletion -->
+    <script>
+        document.getElementById('addTargetForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const domain = document.getElementById('domainInput').value.trim();
+            const forceRescan = document.getElementById('forceRescanCheck').checked;
+            if(!domain) return;
+
+            const response = await fetch(`/targets/add?domain=${encodeURIComponent(domain)}&force_rescan=${forceRescan}`, {
+                method: 'POST'
+            });
+            
+            if(response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to add target.');
+            }
+        });
+
+        async function deleteTarget(targetId) {
+            if(!confirm('Are you sure you want to delete this target and all its recon data and storage files?')) return;
+            
+            const response = await fetch(`/targets/${targetId}`, {
+                method: 'DELETE'
+            });
+            
+            if(response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to delete target.');
+            }
+        }
+    </script>
+</body>
+</html>

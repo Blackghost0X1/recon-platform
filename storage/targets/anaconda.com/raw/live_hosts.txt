@@ -1,0 +1,121 @@
+http://216.198.54.0/24 (netblock) --> contains --> 216.198.54.11 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.17.70.206 (ipaddress)
+http://216.198.53.0/24 (netblock) --> contains --> 216.198.53.11 (ipaddress)
+http://172.64.144.0/20 (netblock) --> contains --> 172.64.152.23 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.16.191.158 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.18.35.233 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.17.73.206 (ipaddress)
+http://172.64.144.0/20 (netblock) --> contains --> 172.64.149.54 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.17.71.206 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.17.72.206 (ipaddress)
+https://52.44.0.0/15 (netblock) --> contains --> 52.45.100.88 (ipaddress)
+http://173.245.58.0/23 (netblock) --> contains --> 173.245.58.83 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.17.74.206 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.16.32.241 (ipaddress)
+http://173.245.58.0/23 (netblock) --> contains --> 173.245.59.111 (ipaddress)
+http://104.16.0.0/14 (netblock) --> contains --> 104.18.38.202 (ipaddress)
+http://13.227.230.0/23 (netblock) --> contains --> 13.227.231.19 (ipaddress)
+http://13.227.230.0/23 (netblock) --> contains --> 13.227.231.108 (ipaddress)
+http://13.227.230.0/23 (netblock) --> contains --> 13.227.231.126 (ipaddress)
+http://13.227.230.0/23 (netblock) --> contains --> 13.227.231.80 (ipaddress)
+https://account.anaconda.com
+https://account.automation.anaconda.com
+https://account.stage.anaconda.com
+http://32.192.0.0/14 (netblock) --> contains --> 32.194.49.227 (ipaddress)
+http://98.80.0.0/12 (netblock) --> contains --> 98.80.116.184 (ipaddress)
+https://airgap-ate-installer.anaconda.com
+https://airgap.svc.anaconda.com
+https://anaconda.com
+https://anndata-diffex-notebook.holoviz-demo.anaconda.com
+https://api.automation.anaconda.com
+https://api.stage.anaconda.com
+https://assets-cdn.anaconda.com
+https://assets.anaconda.com
+https://ate-installer.anaconda.com
+https://attractors-notebook.holoviz-demo.anaconda.com
+https://auth.anaconda.com
+https://auth.automation.anaconda.com
+https://auth.stage.anaconda.com
+https://automation.anaconda.com
+https://autoupdate.ai.anaconda.com
+https://autoupdate.desktop.anaconda.com
+https://bedrock-gateway.anaconda.com
+https://beta.autoupdate.ai.anaconda.com
+https://beta.autoupdate.desktop.anaconda.com
+https://boids-notebook.holoviz-demo.anaconda.com
+https://brand.anaconda.com
+https://business-docs.anaconda.com
+https://census-notebook.holoviz-demo.anaconda.com
+http://anndata-diffex.holoviz-demo.anaconda.com
+https://convesio-www.anaconda.com
+https://cvetool.anaconda.com
+http://attractors.holoviz-demo.anaconda.com
+https://development.anaconda.com
+https://distro-db.anaconda.com
+https://docs.anaconda.com
+https://engineering.anaconda.com
+https://enterprise-docs.anaconda.com
+https://euler.holoviz-demo.anaconda.com
+https://files.anaconda.com
+https://g.sso.auth.anaconda.com
+https://gapminders.holoviz-demo.anaconda.com
+http://colo-smtp-01.anaconda.com
+https://get.anaconda.com
+https://forum.stage.anaconda.com
+https://forum.anaconda.com
+https://go2.anaconda.com
+https://groove.anaconda.com
+https://hub.automation.anaconda.com
+https://holoviz-demo.anaconda.com
+https://hub.anaconda.com
+https://it.anaconda.com
+https://know.anaconda.com
+http://exoplanets.holoviz-demo.anaconda.com
+https://learning.anaconda.com
+https://legal.anaconda.com
+https://links.anaconda.com
+https://live.anaconda.com
+https://mail.proxy.repo.anaconda.com
+https://mail.holoviz-demo.anaconda.com
+https://marketingops.anaconda.com
+https://metrics.aa.anaconda.com
+https://metrics.anaconda.com
+https://metrics.oauth.anaconda.com
+https://metrics.w.anaconda.com
+https://nb.anaconda.com
+https://navi.anaconda.com
+https://nb.stage.anaconda.com
+https://nucleus.anaconda.com
+https://package-build.anaconda.com
+https://poc-convesio-stage.anaconda.com
+https://poc-convesio.anaconda.com
+https://portal.auth.anaconda.com
+https://portal.on.anaconda.com
+https://pro.anaconda.com
+https://proxy.on.anaconda.com
+https://pt.anaconda.com
+https://public.telemetry.anaconda.com
+https://registry.on.anaconda.com
+https://renovate-approve.anaconda.com
+https://repo.anaconda.com
+https://research.anaconda.com
+https://renovate.anaconda.com
+https://salesloft.anaconda.com
+https://secreport.anaconda.com
+https://server-docs.anaconda.com
+https://sso.auth.anaconda.com
+https://stage.anaconda.com
+https://static.anaconda.com
+https://taskcluster.anaconda.com
+https://swag.anaconda.com
+https://support.anaconda.com
+https://updates.on.anaconda.com
+https://trust.anaconda.com
+https://wiki.anaconda.com
+https://ws.taskcluster.anaconda.com
+https://www.anaconda.com
+https://www.proxy.repo.anaconda.com
+https://xltb.anaconda.com
+https://xltb-preview.anaconda.com
+https://xltb.stage.anaconda.com
+http://www.holoviz-demo.anaconda.com
