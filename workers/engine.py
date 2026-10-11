@@ -61,9 +61,7 @@ def save_recon_data_to_db(target_id: int, raw_dir: str):
                             if sub_obj and "technologies" in data:
                                 techs = data["technologies"]
                                 for tech in techs:
-                                    # tech قد تكون نصاً أو كائناً حسب إصدار httpx
                                     tech_name = tech if isinstance(tech, str) else tech.get("name", str(tech))
-                                    # التحقق عدم التكرار
                                     t_exists = db.query(Technology).filter_by(subdomain_id=sub_obj.id, tech_name=tech_name).first()
                                     if not t_exists:
                                         new_tech = Technology(subdomain_id=sub_obj.id, tech_name=tech_name)
@@ -109,7 +107,7 @@ def save_recon_data_to_db(target_id: int, raw_dir: str):
 
 def run_target_pipeline(target_domain: str, force_rescan: bool = False):
     """
-    تنفيذ خط العمليات (Pipeline) الكامل لهدف معين مع دعم إعادة الفحص الإجباري (Caching & Rescan)
+    تنفيذ خط العمليات (Pipeline) الكامل لهدف معين مع دعم إعادة الفحص الإجباري وتتبع المراحل (Stages)
     """
     print(f"\n==============================================")
     print(f"[*] Initializing Pipeline for Target: {target_domain} (Force Rescan: {force_rescan})")
@@ -117,15 +115,16 @@ def run_target_pipeline(target_domain: str, force_rescan: bool = False):
 
     db = SessionLocal()
     try:
-        # تسجيل أو جلب الهدف من قاعدة البيانات
+        # تسجيل أو جلب الهدف من قاعدة البيانات وتعيين الحالة الأولية والمرحلة
         target_obj = db.query(Target).filter_by(domain=target_domain).first()
         if not target_obj:
-            target_obj = Target(domain=target_domain, status="running")
+            target_obj = Target(domain=target_domain, status="running", stage="Initializing")
             db.add(target_obj)
             db.commit()
             db.refresh(target_obj)
         else:
             target_obj.status = "running"
+            target_obj.stage = "Initializing"
             db.commit()
 
         target_id = target_obj.id
@@ -136,6 +135,16 @@ def run_target_pipeline(target_domain: str, force_rescan: bool = False):
     raw_dir, processed_dir = setup_target_storage(target_domain)
     subdomains_file = os.path.join(raw_dir, "subdomains.txt")
 
+    # تحديث المرحلة: Subdomain Enumeration
+    db = SessionLocal()
+    try:
+        t = db.query(Target).filter_by(id=target_id).first()
+        if t:
+            t.stage = "Subdomain Enumeration"
+            db.commit()
+    finally:
+        db.close()
+
     # 2. خطوة جمع النطاقات الفرعية (مع التحقق من الكاش بناءً على رغبة المستخدم)
     if not force_rescan and os.path.exists(subdomains_file) and os.path.getsize(subdomains_file) > 0:
         print(f"[+] Found existing subdomains cache for {target_domain}. Skipping slow enumeration tools (Subfinder/Amass)...")
@@ -143,24 +152,65 @@ def run_target_pipeline(target_domain: str, force_rescan: bool = False):
         print(f"[*] Starting fresh multi-tool subdomain enumeration...")
         enumerate_subdomains(target_domain, raw_dir)
 
-    # 3. خطوة الفحص الحي واستخراج التقنيات (Httpx Resolution)
+    # تحديث المرحلة: Live Host Probing
+    db = SessionLocal()
+    try:
+        t = db.query(Target).filter_by(id=target_id).first()
+        if t:
+            t.stage = "Live Host Probing"
+            db.commit()
+    finally:
+        db.close()
+
+    # 3. خطوة الفحص الحي واستخراج التقنيات (Httpx Resolution)[cite: 1]
     resolve_and_fingerprint(raw_dir)
 
-    # 4. خطوة الزحف وسحب الروابط والـ JS (Katana Crawling)
+    # تحديث المرحلة: Crawling Endpoints
+    db = SessionLocal()
+    try:
+        t = db.query(Target).filter_by(id=target_id).first()
+        if t:
+            t.stage = "Crawling Endpoints"
+            db.commit()
+    finally:
+        db.close()
+
+    # 4. خطوة الزحف وسحب الروابط والـ JS (Katana Crawling)[cite: 1]
     run_crawler(raw_dir)
 
-    # 5. خطوة فحص الثغرات السريعة (Nuclei Scanning)
+    # تحديث المرحلة: Vulnerability Scanning (Nuclei)
+    db = SessionLocal()
+    try:
+        t = db.query(Target).filter_by(id=target_id).first()
+        if t:
+            t.stage = "Vulnerability Scanning (Nuclei)"
+            db.commit()
+    finally:
+        db.close()
+
+    # 5. خطوة فحص الثغرات السريعة (Nuclei Scanning)[cite: 1]
     run_nuclei_scanner(raw_dir)
 
-    # 6. حفظ ومزامنة النتائج النصية داخل قاعدة البيانات مع ربطها بالهدف
+    # تحديث المرحلة: Syncing Database
+    db = SessionLocal()
+    try:
+        t = db.query(Target).filter_by(id=target_id).first()
+        if t:
+            t.stage = "Syncing Database"
+            db.commit()
+    finally:
+        db.close()
+
+    # 6. حفظ ومزامنة النتائج النصية داخل قاعدة البيانات مع ربطها بالهدف[cite: 1]
     save_recon_data_to_db(target_id, raw_dir)
 
-    # تحديث حالة الهدف إلى مكتمل
+    # تحديث حالة الهدف إلى مكتمل والمرحلة إلى Finished
     db = SessionLocal()
     try:
         t_obj = db.query(Target).filter_by(id=target_id).first()
         if t_obj:
             t_obj.status = "finished"
+            t_obj.stage = "Finished"
             db.commit()
     finally:
         db.close()

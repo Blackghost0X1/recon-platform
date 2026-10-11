@@ -8,7 +8,8 @@ class Target(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     domain = Column(String, unique=True, index=True, nullable=False)
-    status = Column(String, default="active")  # active, paused, finished
+    status = Column(String, default="active")  # active, paused, finished, failed
+    stage = Column(String, default="Idle")      # مرحلة الفحص الحالية لتتبع التقدم
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # العلاقات لربط الهدف ببياناته المعزولة

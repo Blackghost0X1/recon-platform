@@ -68,28 +68,32 @@
                             <th class="px-6 py-3">ID</th>
                             <th class="px-6 py-3">Domain</th>
                             <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Current Stage</th>
                             <th class="px-6 py-3">Subdomains</th>
                             <th class="px-6 py-3">Endpoints</th>
                             <th class="px-6 py-3">JS Files</th>
                             <th class="px-6 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-800 text-sm">
+                    <tbody class="divide-y divide-gray-800 text-sm" id="targets-table-body">
                         {% for t in targets %}
-                        <tr class="hover:bg-gray-800/50 transition">
+                        <tr class="hover:bg-gray-800/50 transition" id="row-target-{{ t.id }}">
                             <td class="px-6 py-4 text-gray-400">#{{ t.id }}</td>
                             <td class="px-6 py-4 font-bold text-white">{{ t.domain }}</td>
                             <td class="px-6 py-4">
-                                <span class="px-2.5 py-1 text-xs rounded-full font-semibold 
+                                <span id="status-{{ t.id }}" class="px-2.5 py-1 text-xs rounded-full font-semibold 
                                     {% if t.status == 'finished' %} bg-green-900/50 text-green-400 border border-green-700
                                     {% elif t.status == 'running' %} bg-yellow-900/50 text-yellow-400 border border-yellow-700
                                     {% else %} bg-gray-800 text-gray-400 {% endif %}">
                                     {{ t.status }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-gray-300">{{ t.subdomains|length }}</td>
-                            <td class="px-6 py-4 text-gray-300">{{ t.endpoints|length }}</td>
-                            <td class="px-6 py-4 text-gray-300">{{ t.js_files|length }}</td>
+                            <td class="px-6 py-4 text-accentred font-semibold text-xs" id="stage-{{ t.id }}">
+                                {{ t.stage if t.stage else 'Idle' }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-300" id="sub-count-{{ t.id }}">{{ t.subdomains|length }}</td>
+                            <td class="px-6 py-4 text-gray-300" id="end-count-{{ t.id }}">{{ t.endpoints|length }}</td>
+                            <td class="px-6 py-4 text-gray-300" id="js-count-{{ t.id }}">{{ t.js_files|length }}</td>
                             <td class="px-6 py-4 text-right space-x-2">
                                 <!-- زر عرض البيانات -->
                                 <a href="/targets/{{ t.id }}/subdomains" target="_blank" class="text-accentred hover:text-red-400 font-semibold text-xs border border-red-900/50 px-2.5 py-1.5 rounded bg-red-950/20">View</a>
@@ -102,8 +106,8 @@
                             </td>
                         </tr>
                         {% else %}
-                        <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">No targets added yet. Add one above to start reconnaissance.</td>
+                        <tr id="no-targets-row">
+                            <td colspan="8" class="px-6 py-8 text-center text-gray-500">No targets added yet. Add one above to start reconnaissance.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -113,7 +117,7 @@
 
     </div>
 
-    <!-- JavaScript to handle adding targets, force rescan, and deletion -->
+    <!-- JavaScript to handle adding targets, force rescan, deletion, and Live Progress polling -->
     <script>
         document.getElementById('addTargetForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -145,6 +149,42 @@
                 alert('Failed to delete target.');
             }
         }
+
+        // تحديث حالة الأهداف والمراحل (Live Progress) تلقائياً كل 3 ثوانٍ
+        async function pollTargetsProgress() {
+            try {
+                // يفترض وجود API يرجع قائمة الأهداف بصيغة JSON أو قائمة مختصرة لحالتها
+                let response = await fetch('/api/targets/status'); 
+                if (!response.ok) return;
+                let targets = await response.json();
+
+                targets.forEach(t => {
+                    let stageEl = document.getElementById(`stage-${t.id}`);
+                    let statusEl = document.getElementById(`status-${t.id}`);
+                    let subCountEl = document.getElementById(`sub-count-${t.id}`);
+                    let endCountEl = document.getElementById(`end-count-${t.id}`);
+                    let jsCountEl = document.getElementById(`js-count-${t.id}`);
+
+                    if (stageEl) stageEl.innerText = t.stage || 'Idle';
+                    if (statusEl) {
+                        statusEl.innerText = t.status;
+                        statusEl.className = `px-2.5 py-1 text-xs rounded-full font-semibold ${
+                            t.status === 'finished' ? 'bg-green-900/50 text-green-400 border border-green-700' :
+                            t.status === 'running' ? 'bg-yellow-900/50 text-yellow-400 border border-yellow-700' :
+                            'bg-gray-800 text-gray-400'
+                        }`;
+                    }
+                    if (subCountEl && t.subdomains_count !== undefined) subCountEl.innerText = t.subdomains_count;
+                    if (endCountEl && t.endpoints_count !== undefined) endCountEl.innerText = t.endpoints_count;
+                    if (jsCountEl && t.js_count !== undefined) jsCountEl.innerText = t.js_count;
+                });
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+        }
+
+        // تشغيل التحديث التلقائي كل 3 ثوانٍ
+        setInterval(pollTargetsProgress, 3000);
     </script>
 </body>
 </html>
