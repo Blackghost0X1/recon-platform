@@ -165,3 +165,24 @@ def delete_target(target_id: int, db: Session = Depends(get_db)):
     db.commit()
     
     return {"status": "success", "message": f"Target {target.domain} deleted successfully."}
+
+# (تأكد أن هذا المسار موجود ضمن ملف الـ FastAPI لديك)
+@app.get("/api/targets/status")
+def get_targets_status():
+    db = SessionLocal()
+    try:
+        targets = db.query(Target).all()
+        data = []
+        for t in targets:
+            data.append({
+                "id": t.id,
+                "domain": t.domain,
+                "status": t.status,
+                "stage": t.stage if t.stage else "Idle",
+                "subdomains_count": len(t.subdomains),
+                "endpoints_count": len(t.endpoints),
+                "js_count": len(t.js_files)
+            })
+        return data
+    finally:
+        db.close()
