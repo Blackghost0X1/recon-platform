@@ -165,7 +165,7 @@
                                 <button onclick="toggleMonitoring({{ t.id }})" id="mon-btn-{{ t.id }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border shadow-sm
                                     {% if t.is_monitored %} bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20
                                     {% else %} bg-gray-900 text-gray-400 border-gray-700 hover:bg-gray-800 {% endif %}">
-                                    {{ 'Active 🔔' : 'Off 🔕' if t.is_monitored else 'Off 🔕' }}
+                                    {% if t.is_monitored %}Active 🔔{% else %}Off 🔕{% endif %}
                                 </button>
                             </td>
                             <td class="px-6 py-4 text-right space-x-2">
@@ -303,7 +303,7 @@
                         }`;
                     }
                     if (subCountEl && t.subdomains_count !== undefined) subCountEl.innerText = t.subdomains_count;
-                    if (endCountEl && t.endpoints_count !== numeric = undefined && t.endpoints_count !== undefined) endCountEl.innerText = t.endpoints_count;
+                    if (endCountEl && t.endpoints_count !== undefined) endCountEl.innerText = t.endpoints_count;
                     if (jsCountEl && t.js_count !== undefined) jsCountEl.innerText = t.js_count;
                 });
             } catch (err) {
