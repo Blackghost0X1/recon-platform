@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from core.database import get_db, init_db
 from core.models import Target, Subdomain, Endpoint, JSFile, Technology
 from workers.engine import run_target_pipeline
+from core.scheduler import start_scheduler  # استيراد مشغل المراقبة التلقائية
 import os
 import shutil
 
@@ -19,6 +20,12 @@ app = FastAPI(
     description="Automated multi-tool reconnaissance pipeline with strict target isolation.",
     version="1.0.0"
 )
+
+# تفعيل الـ Scheduler بمجرد بدء تشغيل سيرفر الـ FastAPI
+@app.on_event("startup")
+def startup_event():
+    start_scheduler()
+    print("[+] Recon Platform Enterprise Monitoring is active!")
 
 # إعداد مجلدات الـ Templates والـ Static للواجهة
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -167,7 +174,7 @@ def delete_target(target_id: int, db: Session = Depends(get_db)):
     
     return {"status": "success", "message": f"Target {target.domain} deleted successfully."}
 
-# (تأكد أن هذا المسار موجود ضمن ملف الـ FastAPI لديك)
+
 @app.get("/api/targets/status")
 def get_targets_status():
     db = SessionLocal()
@@ -187,3 +194,21 @@ def get_targets_status():
         return data
     finally:
         db.close()
+        
+@app.post("/targets/{target_id}/toggle-monitoring")
+def toggle_target_monitoring(target_id: int, db: Session = Depends(get_db)):
+    """تفعيل أو إيقاف المراقبة التلقائية لهدف معين"""
+    target = db.query(Target).filter(Target.id == target_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Target not found")
+    
+    # عكس حالة المراقبة الحالية
+    target.is_monitored = not target.is_monitored
+    db.commit()
+    
+    status_text = "enabled" if target.is_monitored else "disabled"
+    return {
+        "status": "success",
+        "message": f"Monitoring for {target.domain} has been {status_text}.",
+        "is_monitored": target.is_monitored
+    }
