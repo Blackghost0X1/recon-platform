@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 from core.database import SessionLocal
 from core.models import Target, Subdomain, Endpoint, JSFile, Alert
+from workers.engine import run_target_pipeline  # استيراد بايبلاين الفحص الأساسي
 
 # إعدادات بوت التيليجرام
 BOT_TOKEN = "8777767033:AAHG0-SWmyO9SC6FvmL8b95EZ9L1mukc3cA"
@@ -94,7 +95,10 @@ def scheduled_recon_job():
         monitored_targets = db.query(Target).filter(Target.is_monitored == True).all()
         for target in monitored_targets:
             print(f"[MONITORING] Running scheduled scan for target: {target.domain}")
-            # هنا يتم ربطها بمنطق الفحص الأساسي (Pipeline) الخاص بك لتحديث النتائج
+            
+            # تشغيل الفحص الفعلي وإجبار التحديث
+            run_target_pipeline(target.domain, force_rescan=True)
+            
     except Exception as e:
         print(f"[ERROR] Scheduled job failed: {e}")
     finally:
@@ -102,7 +106,7 @@ def scheduled_recon_job():
 
 # تهيئة وتشغيل الـ Scheduler في الخلفية
 scheduler = BackgroundScheduler()
-# جدولة الفحص ليعمل تلقائياً (مثلاً كل 8 ساعات لتغطية 3 مرات يومياً)
+# جدولة الفحص ليعمل تلقائياً كل 8 ساعات
 scheduler.add_job(scheduled_recon_job, 'interval', hours=8, id='recon_monitor_job', replace_existing=True)
 
 def start_scheduler():
