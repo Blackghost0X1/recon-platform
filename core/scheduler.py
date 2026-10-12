@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 from core.database import SessionLocal
 from core.models import Target, Subdomain, Endpoint, JSFile, Alert
-from workers.engine import run_target_pipeline  # استيراد بايبلاين الفحص الأساسي
 
 # إعدادات بوت التيليجرام
 BOT_TOKEN = "8777767033:AAHG0-SWmyO9SC6FvmL8b95EZ9L1mukc3cA"
@@ -90,6 +89,9 @@ def process_recon_diff(target_id: int, new_subdomains: list, new_endpoints: list
 
 def scheduled_recon_job():
     """المهمة المجدولة: تقوم بالبحث عن الأهداف المفعل عليها المراقبة وإعادة فحصها"""
+    # استيراد محلي لتجنب مشكلة الـ Circular Import
+    from workers.engine import run_target_pipeline
+    
     db: Session = SessionLocal()
     try:
         monitored_targets = db.query(Target).filter(Target.is_monitored == True).all()
